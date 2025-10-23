@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e8e3100c7250648b1a8c2149a9a487, type: 3}
+  m_Name: Forge
+  m_EditorClassIdentifier: 
+  buildName: Forge
+  level2: -------------
+  priceTree1: 10
+  priceStone1: 10
+  priceCoin1: 10
+  level3: -------------
+  priceTree2: 20
+  priceStone2: 20
+  priceCoin2: 20
+  level4: -------------
+  priceTree3: 30
+  priceStone3: 30
+  priceCoin3: 30
+  level5: -------------
+  priceTree4: 40
+  priceStone4: 40
+  priceCoin4: 40

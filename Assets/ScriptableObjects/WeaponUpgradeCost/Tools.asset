@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b07965ee318b09409f3b2855422a3ff, type: 3}
+  m_Name: Tools
+  m_EditorClassIdentifier: 
+  nameWeapon: "\u041A\u0438\u0440\u043A\u0430"
+  level2: -------------
+  priceMetall: 3
+  priceCoin1: 100
+  level3: -------------
+  priceCoin2: 150
+  level4: -------------
+  priceCoin3: 200
+  level5: -------------
+  priceCoin4: 250
