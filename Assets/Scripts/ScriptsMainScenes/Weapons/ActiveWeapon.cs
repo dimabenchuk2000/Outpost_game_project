@@ -1,5 +1,6 @@
 using System;
 using Outpost.Player_Movement;
+using Outpost.WeaponSettings;
 using UnityEngine;
 
 public class ActiveWeapon : MonoBehaviour
@@ -64,49 +65,42 @@ public class ActiveWeapon : MonoBehaviour
         }
     }
 
-    private void PanelWeapon_OnEquipWeapon(object sender, EventArgs e)
+    // Создаем общий метод для экипировки оружия
+    private void EquipWeapon(string weaponType)
     {
         DestroyNotActiveWeapon();
 
-        GameObject newWeapon = Instantiate(_dataBase._items[3].obj);
-        newWeapon.transform.SetParent(this.transform);
-        newWeapon.transform.localPosition = new Vector3(-0.354f, 1.415f, 0);
+        if (!WeaponSettings.weaponSettings.TryGetValue(weaponType, out var settings))
+        {
+            Debug.LogError($"Не найдено оружие типа {weaponType}");
+            return;
+        }
+
+        GameObject newWeapon = Instantiate(_dataBase._items[settings.ItemIndex].obj);
+        newWeapon.transform.SetParent(transform);
+        newWeapon.transform.localPosition = settings.LocalPosition;
 
         Vector3 mousePos = GameInput.Instance.GetMousePosition();
         Vector3 playerPos = Player_Movement.GetPlayerPosition();
 
         if (mousePos.x < playerPos.x)
-            newWeapon.transform.localRotation = Quaternion.Euler(0, 0, -192);
+            newWeapon.transform.localRotation = Quaternion.Euler(0, 0, settings.RotationAngle);
+    }
+
+    // Обновляем обработчики событий
+    private void PanelWeapon_OnEquipWeapon(object sender, EventArgs e)
+    {
+        EquipWeapon("Sword");
     }
 
     private void PanelWeapon_OnEquipPickaxe(object sender, EventArgs e)
     {
-        DestroyNotActiveWeapon();
-
-        GameObject newWeapon = Instantiate(_dataBase._items[4].obj);
-        newWeapon.transform.SetParent(this.transform);
-        newWeapon.transform.localPosition = new Vector3(-0.022f, 0.73f, 0);
-
-        Vector3 mousePos = GameInput.Instance.GetMousePosition();
-        Vector3 playerPos = Player_Movement.GetPlayerPosition();
-
-        if (mousePos.x < playerPos.x)
-            newWeapon.transform.localRotation = Quaternion.Euler(0, 0, 0);
+        EquipWeapon("Pickaxe");
     }
 
     private void PanelWeapon_OnEquipAxe(object sender, EventArgs e)
     {
-        DestroyNotActiveWeapon();
-
-        GameObject newWeapon = Instantiate(_dataBase._items[5].obj);
-        newWeapon.transform.SetParent(this.transform);
-        newWeapon.transform.localPosition = new Vector3(-0.022f, 0.73f, 0);
-
-        Vector3 mousePos = GameInput.Instance.GetMousePosition();
-        Vector3 playerPos = Player_Movement.GetPlayerPosition();
-
-        if (mousePos.x < playerPos.x)
-            newWeapon.transform.localRotation = Quaternion.Euler(0, 0, 0);
+        EquipWeapon("Axe");
     }
     // ----------------------------------
 }
