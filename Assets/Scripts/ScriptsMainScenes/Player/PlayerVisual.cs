@@ -43,10 +43,7 @@ public class PlayerVisual : MonoBehaviour
     {
         PlayerRunning();
         PlayerDead();
-
-        _rotator.SetCharacterPos(Camera.main.WorldToScreenPoint(Player.Instance.transform.position));
-        _rotator.SetTargetPos(GameInput.Instance.GetMousePosition());
-        _rotator.Update(true);
+        PlayerRotation();
     }
 
     public void DestroyPlayer()
@@ -61,6 +58,13 @@ public class PlayerVisual : MonoBehaviour
     }
 
     // Поле приватных методов
+    private void PlayerRotation()
+    {
+        _rotator.SetCharacterPos(Camera.main.WorldToScreenPoint(Player.Instance.transform.position));
+        _rotator.SetTargetPos(GameInput.Instance.GetMousePosition());
+        _rotator.Update(true);
+    }
+
     private void PlayerRunning()
     {
         _animator.SetBool(IS_RUNNING, Player_Movement.IsPlayerRunning());
