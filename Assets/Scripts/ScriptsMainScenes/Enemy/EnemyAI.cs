@@ -19,6 +19,8 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private bool _isAttackingEnemy = true;
     [SerializeField] private float _isAttackingDistane = 2f;
 
+    private DirectionalRotator _rotator;
+
     private NavMeshAgent _navMeshAgent;
     private EnemyEntity _enemyEntity;
 
@@ -62,6 +64,7 @@ public class EnemyAI : MonoBehaviour
         _enemyEntity = GetComponent<EnemyEntity>();
         _navMeshAgent.updateRotation = false;
         _navMeshAgent.updateUpAxis = false;
+        _rotator = new DirectionalRotator(null, transform);
     }
 
     private void Start()
@@ -259,13 +262,9 @@ public class EnemyAI : MonoBehaviour
 
     private void RotationEnemy(Transform targetEnemy)
     {
-        Vector3 targetEnemyPos = targetEnemy.position;
-        Vector3 enemyPos = transform.position;
-
-        if (targetEnemyPos.x < enemyPos.x)
-            transform.rotation = Quaternion.Euler(0, 180, 0);
-        else
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+        _rotator.SetCharacterPos(transform.position);
+        _rotator.SetTargetPos(targetEnemy.position);
+        _rotator.Update(false);
     }
     // ----------------------------------
 }

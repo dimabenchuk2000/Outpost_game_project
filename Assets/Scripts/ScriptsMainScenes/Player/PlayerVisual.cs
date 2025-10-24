@@ -24,7 +24,7 @@ public class PlayerVisual : MonoBehaviour
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
-        _rotator = new DirectionalRotator(_spriteRenderer);
+        _rotator = new DirectionalRotator(_spriteRenderer, null);
     }
 
     private void Start()
@@ -45,8 +45,8 @@ public class PlayerVisual : MonoBehaviour
         PlayerDead();
 
         _rotator.SetCharacterPos(Camera.main.WorldToScreenPoint(Player.Instance.transform.position));
-        _rotator.SetMousePos(GameInput.Instance.GetMousePosition());
-        _rotator.Update();
+        _rotator.SetTargetPos(GameInput.Instance.GetMousePosition());
+        _rotator.Update(true);
     }
 
     public void DestroyPlayer()

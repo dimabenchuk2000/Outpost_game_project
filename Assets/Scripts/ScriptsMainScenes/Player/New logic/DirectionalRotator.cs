@@ -2,23 +2,35 @@ using UnityEngine;
 
 public class DirectionalRotator
 {
+    private Transform _transform;
     private SpriteRenderer _spriteRenderer;
     private Vector3 _currentCharacterPos;
-    private Vector3 _currentMousePos;
+    private Vector3 _currentTargetPos;
 
-    public DirectionalRotator(SpriteRenderer spriteRenderer)
+    public DirectionalRotator(SpriteRenderer spriteRenderer, Transform transform)
     {
         _spriteRenderer = spriteRenderer;
+        _transform = transform;
     }
 
     public void SetCharacterPos(Vector3 direction) => _currentCharacterPos = direction;
-    public void SetMousePos(Vector3 direction) => _currentMousePos = direction;
+    public void SetTargetPos(Vector3 direction) => _currentTargetPos = direction;
 
-    public void Update()
+    public void Update(bool isPlayer)
     {
-        if (_currentMousePos.x < _currentCharacterPos.x)
-            _spriteRenderer.flipX = true;
+        if (isPlayer)
+        {
+            if (_currentTargetPos.x < _currentCharacterPos.x)
+                _spriteRenderer.flipX = true;
+            else
+                _spriteRenderer.flipX = false;
+        }
         else
-            _spriteRenderer.flipX = false;
+        {
+            if (_currentTargetPos.x < _currentCharacterPos.x)
+                _transform.rotation = Quaternion.Euler(0, 180, 0);
+            else
+                _transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
     }
 }

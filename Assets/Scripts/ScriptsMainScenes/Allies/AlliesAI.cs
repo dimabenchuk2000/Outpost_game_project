@@ -15,6 +15,8 @@ public class AlliesAI : MonoBehaviour
     [SerializeField] private float _isChasingDistance = 5f;
     [SerializeField] private float _isAttackingDistane = 2f;
 
+    private DirectionalRotator _rotator;
+
     private NavMeshAgent _navMeshAgent;
     private AlliesEntity _alliesEntity;
 
@@ -59,6 +61,7 @@ public class AlliesAI : MonoBehaviour
         _navMeshAgent.updateUpAxis = false;
 
         _startPosition = transform.position;
+        _rotator = new DirectionalRotator(null, transform);
     }
 
     private void Start()
@@ -233,13 +236,9 @@ public class AlliesAI : MonoBehaviour
 
     private void RotationEnemy(Transform targetAllies)
     {
-        Vector3 targetAlliesPos = targetAllies.position;
-        Vector3 alliesPos = transform.position;
-
-        if (targetAlliesPos.x < alliesPos.x)
-            transform.rotation = Quaternion.Euler(0, 180, 0);
-        else
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+        _rotator.SetCharacterPos(transform.position);
+        _rotator.SetTargetPos(targetAllies.position);
+        _rotator.Update(false);
     }
     // ----------------------------------
 }

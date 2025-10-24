@@ -9,11 +9,14 @@ public class ActiveWeapon : MonoBehaviour
 
     // Поле переменных
     [SerializeField] private DataBase _dataBase;
+
+    private DirectionalRotator _rotator;
     // ----------------------------------
 
     private void Awake()
     {
         Instance = this;
+        _rotator = new DirectionalRotator(null, transform);
     }
 
     private void Start()
@@ -45,13 +48,9 @@ public class ActiveWeapon : MonoBehaviour
     // Поле приватных методов
     private void WeaponRotation()
     {
-        Vector3 mousePos = GameInput.Instance.GetMousePosition();
-        Vector3 playerPos = Player_Movement.GetPlayerPosition();
-
-        if (mousePos.x < playerPos.x)
-            transform.rotation = Quaternion.Euler(0, 180, 0);
-        else
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+        _rotator.SetCharacterPos(Camera.main.WorldToScreenPoint(Player.Instance.transform.position));
+        _rotator.SetTargetPos(GameInput.Instance.GetMousePosition());
+        _rotator.Update(false);
     }
 
     private void DestroyNotActiveWeapon()
