@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using Outpost.Player_Attack;
-using Outpost.Player_Movement;
 using Outpost.Player_ResourceTransfer;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,34 +13,38 @@ public class Player : MonoBehaviour
     public static Player Instance;
 
     // Поле переменных
+    [Header("UI(dont touch)")]
     [SerializeField] private Text _textHP;
     [SerializeField] private Image _HPBar;
-
     [SerializeField] private Text _textEnergy;
     [SerializeField] private Image _EnergyBar;
 
-    [SerializeField] private TrailRenderer trailRenderer;
+    [Header("TrailRenderer(dont touch)")]
+    [SerializeField] private TrailRenderer _trailRenderer;
 
+    [Header("Dash settings")]
     [SerializeField] private float _dashMultiplier = 4;
     [SerializeField] private float _costEnergyOfDash = 40;
 
+    [Header("RunBoost settings")]
+    [SerializeField] private float _runMultiplier = 4;
+    [SerializeField] private float _costEnergyOfRun = 1;
+
+    [Header("RunSpeed")]
     public float moveSpeed = 5;
 
-    public KnockBack _knockBack;
-
-    public float currentEnergy;
-
-    public bool isPlayerMove = true;
-    public bool isPlayerTPBase = false;
-    public bool isShiftHeld = false;
-    public bool isPlayerDead = false;
-    public bool isPlayerRunning = false;
+    [HideInInspector] public bool isPlayerMove = true;
+    [HideInInspector] public bool isPlayerTPBase = false;
+    [HideInInspector] public bool isPlayerDead = false;
+    [HideInInspector] public bool isPlayerRunning = false;
 
     private DirectionalMover _mover;
     private DashBooster _dash;
     private EnergySystem _energySystem;
+    private RunBooster _runBoost;
 
     private Rigidbody2D _rb;
+    private KnockBack _knockBack;
 
     private float _playerHealth = 10f;
     private float _currentHealth;
@@ -58,7 +61,8 @@ public class Player : MonoBehaviour
 
         _mover = new DirectionalMover(_rb);
         _energySystem = new EnergySystem();
-        _dash = new DashBooster(trailRenderer, _energySystem, _dashMultiplier, _costEnergyOfDash);
+        _dash = new DashBooster(_trailRenderer, _energySystem, _dashMultiplier, _costEnergyOfDash);
+        _runBoost = new RunBooster(_energySystem, _runMultiplier, _costEnergyOfRun);
     }
 
     private void Start()
@@ -75,8 +79,8 @@ public class Player : MonoBehaviour
         GameInput.Instance.OnPlayerAttackTop += Player_Attack.GameInput_OnPlayerAttackTop;
         GameInput.Instance.OnPlayerAttackDown += Player_Attack.GameInput_OnPlayerAttackDown;
         GameInput.Instance.OnPlayerDashStarted += GameInput_OnPlayerDashStarted;
-        GameInput.Instance.OnPlayerRunPerformed += Player_Movement.GameInput_OnPlayerRunPerformed;
-        GameInput.Instance.OnPlayerRunCancaled += Player_Movement.GameInput_OnPlayerRunCancaled;
+        GameInput.Instance.OnPlayerRunPerformed += GameInput_OnPlayerRunPerformed;
+        GameInput.Instance.OnPlayerRunCancaled += GameInput_OnPlayerRunCancaled;
 
         _energySystem.OnEnergyChangedEvent += EnergySystem_OnEnergyChangedEvent;
     }
@@ -87,21 +91,22 @@ public class Player : MonoBehaviour
         GameInput.Instance.OnPlayerAttackTop -= Player_Attack.GameInput_OnPlayerAttackTop;
         GameInput.Instance.OnPlayerAttackDown -= Player_Attack.GameInput_OnPlayerAttackDown;
         GameInput.Instance.OnPlayerDashStarted -= GameInput_OnPlayerDashStarted;
-        GameInput.Instance.OnPlayerRunPerformed -= Player_Movement.GameInput_OnPlayerRunPerformed;
-        GameInput.Instance.OnPlayerRunCancaled -= Player_Movement.GameInput_OnPlayerRunCancaled;
+        GameInput.Instance.OnPlayerRunPerformed -= GameInput_OnPlayerRunPerformed;
+        GameInput.Instance.OnPlayerRunCancaled -= GameInput_OnPlayerRunCancaled;
 
         _energySystem.OnEnergyChangedEvent -= EnergySystem_OnEnergyChangedEvent;
     }
 
     private void FixedUpdate()
     {
-        if (_rb == null)
-            _rb = GetComponent<Rigidbody2D>();
-
-        if (isPlayerMove)
+        if (isPlayerMove && !_knockBack._isKnockBack)
             PlayerMove();
 
-        _energySystem.UpdateEnergy(Time.fixedDeltaTime);
+        if (!_runBoost.isRunBoost)
+            _energySystem.UpdateEnergy(Time.fixedDeltaTime);
+
+        if (_energySystem.currentEnergy <= 0)
+            _runBoost.Deactivate();
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -117,7 +122,6 @@ public class Player : MonoBehaviour
     {
         if (collision.transform.CompareTag("PortalPlayer"))
         {
-            Player_ResourceTransfer.ResourceTransfer();
             BtnEnabled.Instance.ButtonGoToBaseOff();
         }
     }
@@ -166,7 +170,20 @@ public class Player : MonoBehaviour
 
     private void GameInput_OnPlayerDashStarted(object sender, EventArgs e)
     {
-        _dash.Activate();
+        if (!_runBoost.isRunBoost)
+            _dash.Activate();
+    }
+
+    private void GameInput_OnPlayerRunPerformed(object sender, EventArgs e)
+    {
+        if (!_dash.isDash)
+            _runBoost.Activate();
+    }
+
+    private void GameInput_OnPlayerRunCancaled(object sender, EventArgs e)
+    {
+        if (_runBoost.isRunBoost && _energySystem.currentEnergy > 0)
+            _runBoost.Deactivate();
     }
 
     private void EnergySystem_OnEnergyChangedEvent(float newEnergy)

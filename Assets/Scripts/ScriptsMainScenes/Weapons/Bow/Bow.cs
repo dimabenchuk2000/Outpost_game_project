@@ -1,6 +1,5 @@
 using System;
 using Outpost.Player_Attack;
-using Outpost.Player_Movement;
 using UnityEngine;
 
 public class Bow : MonoBehaviour

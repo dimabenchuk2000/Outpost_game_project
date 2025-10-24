@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class EnergySystem
@@ -31,8 +32,30 @@ public class EnergySystem
         }
     }
 
+    public void WasteEnergy(float costEnergy)
+    {
+        CoroutineRunner.Instance.RunCoroutine("DrainEnergy", DrainEnergy(costEnergy));
+    }
+
+    public void StopWasteEnergy()
+    {
+        CoroutineRunner.Instance.StoppedCoroutine("DrainEnergy");
+    }
+
+    // Приватные методы ----------------------
     private void NotifyEnergyChanged()
     {
         OnEnergyChangedEvent?.Invoke(currentEnergy); // ---> Player
+    }
+
+    // Корутины ----------------------
+    private IEnumerator DrainEnergy(float costEnergy)
+    {
+        while (currentEnergy > 0)
+        {
+            yield return new WaitForSeconds(0.05f);
+            currentEnergy = Mathf.Max(0, currentEnergy - costEnergy);
+            OnEnergyChangedEvent?.Invoke(currentEnergy);
+        }
     }
 }

@@ -8,9 +8,9 @@ public class KnockBack : MonoBehaviour
     [SerializeField] private float _knockBackForce = 3f;
     [SerializeField] private float _knockBackMovingTimerMax = 0.3f;
 
-    private float _knockBackMovingTimer;
-    private bool _isKnockBack = false;
+    [HideInInspector] public bool _isKnockBack = false;
 
+    private float _knockBackMovingTimer;
     private Rigidbody2D _rb;
     // ----------------------------------
 

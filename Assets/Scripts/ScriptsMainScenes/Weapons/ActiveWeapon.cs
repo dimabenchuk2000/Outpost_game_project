@@ -1,5 +1,4 @@
 using System;
-using Outpost.Player_Movement;
 using Outpost.WeaponSettings;
 using UnityEngine;
 

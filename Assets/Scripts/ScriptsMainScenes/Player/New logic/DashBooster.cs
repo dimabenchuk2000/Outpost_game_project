@@ -8,10 +8,10 @@ public class DashBooster
     private readonly float _dashMultiplier;
     private readonly float _costEnergyOfDash;
 
+    public bool isDash = false;
+
     private float _dashTime = 0.1f;
     private float _dashRate = 1f;
-    private bool _isDash = false;
-
 
     public DashBooster(TrailRenderer trailRenderer, EnergySystem energySystem, float dashMultiplier, float costEnergyOfDash)
     {
@@ -23,14 +23,14 @@ public class DashBooster
 
     public void Activate()
     {
-        if (_energySystem.currentEnergy > _costEnergyOfDash && !_isDash)
+        if (_energySystem.currentEnergy > _costEnergyOfDash && !isDash)
         {
             _trailRenderer.emitting = true;
-            _isDash = true;
+            isDash = true;
             Player.Instance.moveSpeed *= _dashMultiplier;
             _energySystem.ConsumeEnergy(_costEnergyOfDash);
 
-            CoroutineRunner.Instance.RunCoroutine(ResetSpeedRoutine());
+            CoroutineRunner.Instance.RunCoroutine("ResetSpeedRoutine", ResetSpeedRoutine());
         }
     }
 
@@ -43,6 +43,7 @@ public class DashBooster
 
         yield return new WaitForSeconds(_dashRate);
 
-        _isDash = false;
+        isDash = false;
+        CoroutineRunner.Instance.StoppedCoroutine("ResetSpeedRoutine");
     }
 }
