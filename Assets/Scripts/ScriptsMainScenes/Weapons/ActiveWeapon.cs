@@ -80,7 +80,7 @@ public class ActiveWeapon : MonoBehaviour
         newWeapon.transform.localPosition = settings.LocalPosition;
 
         Vector3 mousePos = GameInput.Instance.GetMousePosition();
-        Vector3 playerPos = Player_Movement.GetPlayerPosition();
+        Vector3 playerPos = Camera.main.WorldToScreenPoint(Player.Instance.transform.position);
 
         if (mousePos.x < playerPos.x)
             newWeapon.transform.localRotation = Quaternion.Euler(0, 0, settings.RotationAngle);

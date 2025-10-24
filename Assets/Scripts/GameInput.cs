@@ -30,7 +30,7 @@ public class GameInput : MonoBehaviour
     public event EventHandler OnPickaxeSelection;
     public event EventHandler OnAxeSelection;
     public event EventHandler OnCameraPortalToggle;
-    public event EventHandler OnPlayerDashPerformed;
+    public event EventHandler OnPlayerDashStarted;
     public event EventHandler OnPlayerTPBase;
     public event EventHandler OnPlayerRunPerformed;
     public event EventHandler OnPlayerRunCancaled;
@@ -49,7 +49,7 @@ public class GameInput : MonoBehaviour
             pickaxeSelection.action.started += PickaxeSelection;
             axeSelection.action.started += AxeSelection;
             cameraPortal.action.started += CameraPortalToggle;
-            dash.action.performed += PlayerDashPerformed;
+            dash.action.started += PlayerDashStarted;
             run.action.performed += PlayerRunPerformed;
             run.action.canceled += PlayerRunCanceled;
         }
@@ -123,9 +123,9 @@ public class GameInput : MonoBehaviour
         OnCameraPortalToggle?.Invoke(this, EventArgs.Empty); // ---> CameraPortal
     }
 
-    private void PlayerDashPerformed(InputAction.CallbackContext context)
+    private void PlayerDashStarted(InputAction.CallbackContext context)
     {
-        OnPlayerDashPerformed?.Invoke(this, EventArgs.Empty); // ---> Player
+        OnPlayerDashStarted?.Invoke(this, EventArgs.Empty); // ---> Player
     }
 
     private void PlayerRunPerformed(InputAction.CallbackContext context)

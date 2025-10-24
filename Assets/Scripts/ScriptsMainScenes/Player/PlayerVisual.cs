@@ -67,7 +67,7 @@ public class PlayerVisual : MonoBehaviour
 
     private void PlayerRunning()
     {
-        _animator.SetBool(IS_RUNNING, Player_Movement.IsPlayerRunning());
+        _animator.SetBool(IS_RUNNING, Player.Instance.isPlayerRunning);
     }
 
     private void PlayerDead()

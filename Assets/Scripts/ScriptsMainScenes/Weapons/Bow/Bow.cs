@@ -54,7 +54,7 @@ public class Bow : MonoBehaviour
     private void SetStartPosBow()
     {
         Vector3 mousePos = GameInput.Instance.GetMousePosition();
-        Vector3 playerPos = Player_Movement.GetPlayerPosition();
+        Vector3 playerPos = Camera.main.WorldToScreenPoint(Player.Instance.transform.position);
 
         if (mousePos.x < playerPos.x)
         {

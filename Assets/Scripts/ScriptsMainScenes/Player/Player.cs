@@ -22,26 +22,29 @@ public class Player : MonoBehaviour
 
     [SerializeField] private TrailRenderer trailRenderer;
 
+    [SerializeField] private float _dashMultiplier = 4;
+    [SerializeField] private float _costEnergyOfDash = 40;
+
+    public float moveSpeed = 5;
+
     public KnockBack _knockBack;
 
     public float currentEnergy;
 
-    public bool _isPlayerMove = true;
+    public bool isPlayerMove = true;
     public bool isPlayerTPBase = false;
     public bool isShiftHeld = false;
     public bool isPlayerDead = false;
+    public bool isPlayerRunning = false;
+
+    private DirectionalMover _mover;
+    private DashBooster _dash;
+    private EnergySystem _energySystem;
 
     private Rigidbody2D _rb;
 
-    private Vector2 _vectorDirectionMovement;
-
     private float _playerHealth = 10f;
     private float _currentHealth;
-
-    private float _playerEnergy = 100f;
-    private float _timeEnergyRate = 0.05f;
-    private float _recoveryEnergyAmount = 1f;
-    private float _costEnergyOfDash = 60;
     // ----------------------------------
 
     // Поле событий
@@ -52,6 +55,10 @@ public class Player : MonoBehaviour
     {
         _knockBack = GetComponent<KnockBack>();
         _rb = GetComponent<Rigidbody2D>();
+
+        _mover = new DirectionalMover(_rb);
+        _energySystem = new EnergySystem();
+        _dash = new DashBooster(trailRenderer, _energySystem, _dashMultiplier, _costEnergyOfDash);
     }
 
     private void Start()
@@ -60,17 +67,18 @@ public class Player : MonoBehaviour
         _currentHealth = _playerHealth;
         _textHP.text = _currentHealth.ToString() + "/" + _playerHealth.ToString();
 
-        currentEnergy = _playerEnergy;
-        _textEnergy.text = currentEnergy.ToString() + "/" + _playerEnergy.ToString();
+        _textEnergy.text = _energySystem.currentEnergy.ToString() + "/" + _energySystem.maxEnergy.ToString();
 
         Player_Attack._isPlayerFightMode = false;
 
         GameInput.Instance.OnPlayerFightMode += Player_Attack.GameInput_OnPlayerFightMode;
         GameInput.Instance.OnPlayerAttackTop += Player_Attack.GameInput_OnPlayerAttackTop;
         GameInput.Instance.OnPlayerAttackDown += Player_Attack.GameInput_OnPlayerAttackDown;
-        GameInput.Instance.OnPlayerDashPerformed += Player_Movement.GameInput_OnPlayerDashPerformed;
+        GameInput.Instance.OnPlayerDashStarted += GameInput_OnPlayerDashStarted;
         GameInput.Instance.OnPlayerRunPerformed += Player_Movement.GameInput_OnPlayerRunPerformed;
         GameInput.Instance.OnPlayerRunCancaled += Player_Movement.GameInput_OnPlayerRunCancaled;
+
+        _energySystem.OnEnergyChangedEvent += EnergySystem_OnEnergyChangedEvent;
     }
 
     private void OnDestroy()
@@ -78,27 +86,22 @@ public class Player : MonoBehaviour
         GameInput.Instance.OnPlayerFightMode -= Player_Attack.GameInput_OnPlayerFightMode;
         GameInput.Instance.OnPlayerAttackTop -= Player_Attack.GameInput_OnPlayerAttackTop;
         GameInput.Instance.OnPlayerAttackDown -= Player_Attack.GameInput_OnPlayerAttackDown;
-        GameInput.Instance.OnPlayerDashPerformed -= Player_Movement.GameInput_OnPlayerDashPerformed;
+        GameInput.Instance.OnPlayerDashStarted -= GameInput_OnPlayerDashStarted;
         GameInput.Instance.OnPlayerRunPerformed -= Player_Movement.GameInput_OnPlayerRunPerformed;
         GameInput.Instance.OnPlayerRunCancaled -= Player_Movement.GameInput_OnPlayerRunCancaled;
 
-        CancelInvoke();
-    }
-
-    private void Update()
-    {
-        _vectorDirectionMovement = GameInput.Instance.GetVectorDirectionMovement();
+        _energySystem.OnEnergyChangedEvent -= EnergySystem_OnEnergyChangedEvent;
     }
 
     private void FixedUpdate()
     {
         if (_rb == null)
-        {
             _rb = GetComponent<Rigidbody2D>();
-        }
-        if (_isPlayerMove)
-            Player_Movement.PlayerMove();
 
+        if (isPlayerMove)
+            PlayerMove();
+
+        _energySystem.UpdateEnergy(Time.fixedDeltaTime);
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -120,19 +123,11 @@ public class Player : MonoBehaviour
     }
 
     // Поле публичных методов
-    public Rigidbody2D Rigidbody2D() => _rb;
-    public Vector2 VectorDirectionMovement() => _vectorDirectionMovement;
     public bool IsPlayerDead() => isPlayerDead;
 
     public void IsFightModeOff()
     {
         StartCoroutine(IsPlayerFightModeOff());
-    }
-
-    public void DashOn()
-    {
-        if (currentEnergy >= _costEnergyOfDash)
-            StartCoroutine(DashRoutine());
     }
 
     public void TakeDamage(int damage, Transform sourceDamage)
@@ -148,22 +143,17 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void LossEnergyRunning()
-    {
-        CancelInvoke("DecreaseEnergy");
-        CancelInvoke("RecoverEnergy");
-        InvokeRepeating("DecreaseEnergy", 0, 0.05f);
-    }
-
-    public void AddEnergy()
-    {
-        CancelInvoke("DecreaseEnergy");
-        CancelInvoke("RecoverEnergy");
-        InvokeRepeating("RecoverEnergy", 0, _timeEnergyRate);
-    }
-    // ----------------------------------
-
     // Поле приватных методов
+    private void PlayerMove()
+    {
+        _mover.SetInputDirection(GameInput.Instance.GetVectorDirectionMovement());
+        _mover.Update(Time.fixedDeltaTime, moveSpeed);
+
+        if (GameInput.Instance.GetVectorDirectionMovement().magnitude > 0)
+            isPlayerRunning = true;
+        else isPlayerRunning = false;
+    }
+
     private void DetectDeath()
     {
         if (_currentHealth <= 0)
@@ -174,25 +164,15 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void RecoverEnergy()
+    private void GameInput_OnPlayerDashStarted(object sender, EventArgs e)
     {
-        currentEnergy = Mathf.Min(currentEnergy + _recoveryEnergyAmount, _playerEnergy);
-        _textEnergy.text = currentEnergy.ToString() + "/" + _playerEnergy.ToString();
-        _EnergyBar.fillAmount = currentEnergy / _playerEnergy;
+        _dash.Activate();
     }
 
-    private void DecreaseEnergy()
+    private void EnergySystem_OnEnergyChangedEvent(float newEnergy)
     {
-        currentEnergy = currentEnergy - 1;
-        _textEnergy.text = currentEnergy.ToString() + "/" + _playerEnergy.ToString();
-        _EnergyBar.fillAmount = currentEnergy / _playerEnergy;
-
-        if (currentEnergy <= 0)
-        {
-            isShiftHeld = false;
-            AddEnergy();
-            Player_Movement.RunCheck();
-        }
+        _textEnergy.text = Mathf.CeilToInt(newEnergy).ToString() + "/" + _energySystem.maxEnergy.ToString();
+        _EnergyBar.fillAmount = newEnergy / _energySystem.maxEnergy;
     }
     // ----------------------------------
 
@@ -201,20 +181,6 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         Player_Attack._isPlayerFightMode = false;
-    }
-
-    IEnumerator DashRoutine()
-    {
-        currentEnergy -= _costEnergyOfDash;
-        CancelInvoke("RecoverEnergy");
-        InvokeRepeating("RecoverEnergy", 0, _timeEnergyRate);
-        trailRenderer.emitting = true;
-        Player_Movement.movementSpeed *= Player_Movement.dashMultiplier;
-
-        yield return new WaitForSeconds(Player_Movement.dashTime);
-
-        Player_Movement.movementSpeed /= Player_Movement.dashMultiplier;
-        trailRenderer.emitting = false;
     }
 
     IEnumerator UIAfterDead()

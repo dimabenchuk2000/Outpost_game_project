@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class DirectionalRotator
 {
-    private Transform _transform;
-    private SpriteRenderer _spriteRenderer;
+    private readonly Transform _transform;
+    private readonly SpriteRenderer _spriteRenderer;
     private Vector3 _currentCharacterPos;
     private Vector3 _currentTargetPos;
 

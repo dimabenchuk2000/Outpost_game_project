@@ -16,7 +16,7 @@ public class ExitFromTheCave : MonoBehaviour
         if (collision.transform.TryGetComponent(out Player player))
         {
 
-            Player.Instance._isPlayerMove = false;
+            Player.Instance.isPlayerMove = false;
             ScreenDarken.Instanse.DarkenScreen();
 
             StartCoroutine(PlayerMovementWorld(player));
@@ -44,7 +44,7 @@ public class ExitFromTheCave : MonoBehaviour
         LightController.Instanse._isPlayerInCave = false;
         LightController.Instanse.CheckingPlayerLocation();
 
-        Player.Instance._isPlayerMove = true;
+        Player.Instance.isPlayerMove = true;
         ScreenDarken.Instanse.LightenScreen();
     }
     // ----------------------------------
