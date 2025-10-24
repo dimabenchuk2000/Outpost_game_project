@@ -12,6 +12,8 @@ public class PlayerVisual : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private Animator _animator;
 
+    private DirectionalRotator _rotator;
+
     private const string IS_RUNNING = "isRunning";
     private const string IS_DEAD = "isDead";
     private const string IS_TAKE_DAMAGE = "isTakeDamage";
@@ -22,6 +24,7 @@ public class PlayerVisual : MonoBehaviour
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
+        _rotator = new DirectionalRotator(_spriteRenderer);
     }
 
     private void Start()
@@ -38,9 +41,12 @@ public class PlayerVisual : MonoBehaviour
 
     private void Update()
     {
-        PlayerRotation();
         PlayerRunning();
         PlayerDead();
+
+        _rotator.SetCharacterPos(Camera.main.WorldToScreenPoint(Player.Instance.transform.position));
+        _rotator.SetMousePos(GameInput.Instance.GetMousePosition());
+        _rotator.Update();
     }
 
     public void DestroyPlayer()
@@ -55,17 +61,6 @@ public class PlayerVisual : MonoBehaviour
     }
 
     // Поле приватных методов
-    private void PlayerRotation()
-    {
-        Vector3 mousePos = GameInput.Instance.GetMousePosition();
-        Vector3 playerPos = Player_Movement.GetPlayerPosition();
-
-        if (mousePos.x < playerPos.x)
-            _spriteRenderer.flipX = true;
-        else
-            _spriteRenderer.flipX = false;
-    }
-
     private void PlayerRunning()
     {
         _animator.SetBool(IS_RUNNING, Player_Movement.IsPlayerRunning());
