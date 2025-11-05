@@ -75,26 +75,24 @@ public class Player : MonoBehaviour
 
         Player_Attack._isPlayerFightMode = false;
 
-        GameInput.Instance.OnPlayerFightMode += Player_Attack.GameInput_OnPlayerFightMode;
-        GameInput.Instance.OnPlayerAttackTop += Player_Attack.GameInput_OnPlayerAttackTop;
-        GameInput.Instance.OnPlayerAttackDown += Player_Attack.GameInput_OnPlayerAttackDown;
         GameInput.Instance.OnPlayerDashStarted += GameInput_OnPlayerDashStarted;
         GameInput.Instance.OnPlayerRunPerformed += GameInput_OnPlayerRunPerformed;
         GameInput.Instance.OnPlayerRunCancaled += GameInput_OnPlayerRunCancaled;
 
         _energySystem.OnEnergyChangedEvent += EnergySystem_OnEnergyChangedEvent;
+
+        Player_Attack.SubscribeToEvents();
     }
 
     private void OnDestroy()
     {
-        GameInput.Instance.OnPlayerFightMode -= Player_Attack.GameInput_OnPlayerFightMode;
-        GameInput.Instance.OnPlayerAttackTop -= Player_Attack.GameInput_OnPlayerAttackTop;
-        GameInput.Instance.OnPlayerAttackDown -= Player_Attack.GameInput_OnPlayerAttackDown;
         GameInput.Instance.OnPlayerDashStarted -= GameInput_OnPlayerDashStarted;
         GameInput.Instance.OnPlayerRunPerformed -= GameInput_OnPlayerRunPerformed;
         GameInput.Instance.OnPlayerRunCancaled -= GameInput_OnPlayerRunCancaled;
 
         _energySystem.OnEnergyChangedEvent -= EnergySystem_OnEnergyChangedEvent;
+
+        Player_Attack.UnsubscribeFromEvents();
     }
 
     private void FixedUpdate()

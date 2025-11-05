@@ -8,7 +8,15 @@ namespace Outpost.Player_Attack
         // Поле переменных
         public static bool _isPlayerFightMode;
         private static float _nextAttackTime;
+        private static IWeapon _currentWeapon;
         // ----------------------------------
+
+        // Инициализация статических полей
+        static Player_Attack()
+        {
+            _isPlayerFightMode = false;
+            _nextAttackTime = 0f;
+        }
 
         // Поле публичных методов
         public static bool IsPlayerFightMode() => _isPlayerFightMode;
@@ -24,8 +32,8 @@ namespace Outpost.Player_Attack
 
                 if (ActiveWeapon.Instance.transform.childCount > 0)
                 {
-                    IWeapon weapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
-                    weapon.FightMode();
+                    _currentWeapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
+                    _currentWeapon.FightMode();
                 }
 
             }
@@ -35,12 +43,12 @@ namespace Outpost.Player_Attack
         {
             if (_isPlayerFightMode && ActiveWeapon.Instance.transform.childCount > 0 && !Player.Instance.isPlayerTPBase)
             {
-                IWeapon weapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
+                _currentWeapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
 
                 if (Time.time > _nextAttackTime)
                 {
-                    weapon.Attack(AttackType.Normal);
-                    _nextAttackTime = Time.time + weapon.GetAttackRate();
+                    _currentWeapon.Attack(AttackType.Normal);
+                    _nextAttackTime = Time.time + _currentWeapon.GetAttackRate();
                 }
             }
         }
@@ -49,14 +57,29 @@ namespace Outpost.Player_Attack
         {
             if (_isPlayerFightMode && ActiveWeapon.Instance.transform.childCount > 0 && !Player.Instance.isPlayerTPBase)
             {
-                IWeapon weapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
+                _currentWeapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
 
                 if (Time.time > _nextAttackTime)
                 {
-                    weapon.Attack(AttackType.Additional);
-                    _nextAttackTime = Time.time + weapon.GetAttackRate();
+                    _currentWeapon.Attack(AttackType.Additional);
+                    _nextAttackTime = Time.time + _currentWeapon.GetAttackRate();
                 }
             }
+        }
+
+        public static void SubscribeToEvents()
+        {
+            GameInput.Instance.OnPlayerFightMode += GameInput_OnPlayerFightMode;
+            GameInput.Instance.OnPlayerAttackTop += GameInput_OnPlayerAttackTop;
+            GameInput.Instance.OnPlayerAttackDown += GameInput_OnPlayerAttackDown;
+        }
+
+        // Метод для отписки от событий
+        public static void UnsubscribeFromEvents()
+        {
+            GameInput.Instance.OnPlayerFightMode -= GameInput_OnPlayerFightMode;
+            GameInput.Instance.OnPlayerAttackTop -= GameInput_OnPlayerAttackTop;
+            GameInput.Instance.OnPlayerAttackDown -= GameInput_OnPlayerAttackDown;
         }
         // ----------------------------------
     }
