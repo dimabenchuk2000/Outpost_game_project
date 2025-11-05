@@ -1,12 +1,11 @@
 using System;
 using UnityEngine;
 
-public class Sword : MonoBehaviour
+public class Sword : MonoBehaviour, IWeapon
 {
     // Поле переменных
     [SerializeField] private SwordsSO _swordsSO;
 
-    private float _swordAttackRate;
     private int _swordDamage;
     private float _swordSpeedAttack;
     // ----------------------------------
@@ -19,27 +18,43 @@ public class Sword : MonoBehaviour
 
     private void Start()
     {
-        _swordAttackRate = _swordsSO.swordAttackRate;
         _swordDamage = _swordsSO.swordDamage;
         _swordSpeedAttack = _swordsSO.swordSpeedAttack;
     }
 
     // Поле публичных методов
-    public float SwordAttackRate() => _swordAttackRate;
-    public int SwordDamage() => _swordDamage;
-    public float SwordSpeedAttack() => _swordSpeedAttack;
+    public void Attack(AttackType attackType)
+    {
+        switch (attackType)
+        {
+            case AttackType.Normal:
+                AttackTop();
+                break;
+            case AttackType.Additional:
+                AttackDown();
+                break;
+        }
+    }
 
     public void FightMode()
     {
         OnFightMode?.Invoke(this, EventArgs.Empty); // ---> SwordVisual
     }
 
-    public void AttackTop()
+    public float GetAttackRate()
+    {
+        return _swordsSO.swordAttackRate;
+    }
+
+    public int SwordDamage() => _swordDamage;
+    public float SwordSpeedAttack() => _swordSpeedAttack;
+
+    private void AttackTop()
     {
         OnAttackTop?.Invoke(this, EventArgs.Empty); // ---> SwordVisual SwordWaveVisual
     }
 
-    public void AttackDown()
+    private void AttackDown()
     {
         OnAttackDown?.Invoke(this, EventArgs.Empty); // ---> SwordVisual SwordWaveVisual
     }

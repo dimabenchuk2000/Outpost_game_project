@@ -2,9 +2,10 @@ using System;
 using Outpost.Player_Attack;
 using UnityEngine;
 
-public class Bow : MonoBehaviour
+public class Bow : MonoBehaviour, IWeapon
 {
     // Поле переменных
+    [SerializeField] private float _bowAttackRate = 1;
     private Quaternion _transRot;
     // ----------------------------------
 
@@ -23,19 +24,32 @@ public class Bow : MonoBehaviour
         if (Player_Attack.IsPlayerFightMode())
             RotationBow();
 
-        if (Player_Attack.IsPlayerFightMode() == false)
+        if (!Player_Attack.IsPlayerFightMode())
             SetStartPosBow();
     }
 
     // Поле публичных методов
+    public void Attack(AttackType attackType)
+    {
+        switch (attackType)
+        {
+            case AttackType.Normal:
+                OnAttack?.Invoke(this, EventArgs.Empty); // ---> BowVisual();
+                break;
+            case AttackType.Additional:
+                OnAttack?.Invoke(this, EventArgs.Empty); // ---> BowVisual();
+                break;
+        }
+    }
+
     public void FightMode()
     {
         OnFightMode?.Invoke(this, EventArgs.Empty); // ---> BowVisual
     }
 
-    public void Attack()
+    public float GetAttackRate()
     {
-        OnAttack?.Invoke(this, EventArgs.Empty); // ---> BowVisual
+        return _bowAttackRate;
     }
     // ----------------------------------
 

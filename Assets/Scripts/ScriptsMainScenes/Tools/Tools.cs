@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Tools : MonoBehaviour
+public class Tools : MonoBehaviour, IWeapon
 {
     // Поле переменных
     [SerializeField] private ToolsSO _toolsSO;
@@ -24,18 +24,37 @@ public class Tools : MonoBehaviour
     }
 
     // Поле публичных методов
-    public float ToolsExtractionRate() => _toolsExtractionRate;
-    public float ToolsSpeedExtraction() => _toolsSpeedExtraction;
-    public int ToolsDamage() => _toolsDamage;
-
-    public void Extraction()
+    public void Attack(AttackType attackType)
     {
-        OnExtraction?.Invoke(this, EventArgs.Empty); // ---> ToolsVisual
+        switch (attackType)
+        {
+            case AttackType.Normal:
+                Extraction();
+                break;
+            case AttackType.Additional:
+                Extraction();
+                break;
+        }
+    }
+
+    public float GetAttackRate()
+    {
+        return _toolsExtractionRate;
     }
 
     public void FightMode()
     {
         OnFightMode?.Invoke(this, EventArgs.Empty); // ---> ToolsVisual
+    }
+
+    public float ToolsSpeedExtraction() => _toolsSpeedExtraction;
+    public int ToolsDamage() => _toolsDamage;
+    // ----------------------------------
+
+    // Полу приватных методов
+    private void Extraction()
+    {
+        OnExtraction?.Invoke(this, EventArgs.Empty); // ---> ToolsVisual
     }
     // ----------------------------------
 }

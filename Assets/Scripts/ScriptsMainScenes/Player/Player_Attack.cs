@@ -24,13 +24,8 @@ namespace Outpost.Player_Attack
 
                 if (ActiveWeapon.Instance.transform.childCount > 0)
                 {
-                    GameObject activeWeapon = ActiveWeapon.Instance.CheckActiveWeapon();
-                    if (activeWeapon.tag == "Sword")
-                        activeWeapon.GetComponent<Sword>().FightMode();
-                    if (activeWeapon.tag == "Bow")
-                        activeWeapon.GetComponent<Bow>().FightMode();
-                    if (activeWeapon.tag == "Tools")
-                        activeWeapon.GetComponent<Tools>().FightMode();
+                    IWeapon weapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
+                    weapon.FightMode();
                 }
 
             }
@@ -40,34 +35,12 @@ namespace Outpost.Player_Attack
         {
             if (_isPlayerFightMode && ActiveWeapon.Instance.transform.childCount > 0 && !Player.Instance.isPlayerTPBase)
             {
-                GameObject activeWeapon = ActiveWeapon.Instance.CheckActiveWeapon();
-                if (activeWeapon.tag == "Sword")
-                {
-                    Sword sword = activeWeapon.GetComponent<Sword>();
-                    if (Time.time > _nextAttackTime)
-                    {
-                        sword.AttackTop();
-                        _nextAttackTime = Time.time + sword.SwordAttackRate();
-                    }
-                }
+                IWeapon weapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
 
-                if (activeWeapon.tag == "Bow")
+                if (Time.time > _nextAttackTime)
                 {
-                    Bow bow = activeWeapon.GetComponent<Bow>();
-                    if (Time.time > _nextAttackTime)
-                    {
-                        bow.Attack();
-                    }
-                }
-
-                if (activeWeapon.tag == "Tools")
-                {
-                    Tools tools = activeWeapon.GetComponent<Tools>();
-                    if (Time.time > _nextAttackTime)
-                    {
-                        tools.Extraction();
-                        _nextAttackTime = Time.time + tools.ToolsExtractionRate();
-                    }
+                    weapon.Attack(AttackType.Normal);
+                    _nextAttackTime = Time.time + weapon.GetAttackRate();
                 }
             }
         }
@@ -76,16 +49,12 @@ namespace Outpost.Player_Attack
         {
             if (_isPlayerFightMode && ActiveWeapon.Instance.transform.childCount > 0 && !Player.Instance.isPlayerTPBase)
             {
-                GameObject activeWeapon = ActiveWeapon.Instance.CheckActiveWeapon();
-                if (activeWeapon.tag == "Sword")
-                {
-                    Sword sword = activeWeapon.GetComponent<Sword>();
-                    if (Time.time > _nextAttackTime)
-                    {
-                        sword.AttackDown();
-                        _nextAttackTime = Time.time + sword.SwordAttackRate();
-                    }
+                IWeapon weapon = ActiveWeapon.Instance.CheckActiveWeapon().GetComponent<IWeapon>();
 
+                if (Time.time > _nextAttackTime)
+                {
+                    weapon.Attack(AttackType.Additional);
+                    _nextAttackTime = Time.time + weapon.GetAttackRate();
                 }
             }
         }

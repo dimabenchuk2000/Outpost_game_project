@@ -218,16 +218,16 @@ public class AlliesAI : MonoBehaviour
                 {
                     if (Time.time > _nextAttackTime)
                     {
-                        sword.AttackDown();
-                        _nextAttackTime = Time.time + sword.SwordAttackRate();
+                        sword.Attack(AttackType.Additional);
+                        _nextAttackTime = Time.time + sword.GetAttackRate();
                     }
                 }
                 else
                 {
                     if (Time.time > _nextAttackTime)
                     {
-                        sword.AttackTop();
-                        _nextAttackTime = Time.time + sword.SwordAttackRate();
+                        sword.Attack(AttackType.Normal);
+                        _nextAttackTime = Time.time + sword.GetAttackRate();
                     }
                 }
             }
