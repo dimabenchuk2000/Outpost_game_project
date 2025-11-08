@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 4246797173411206889}
   - component: {fileID: 5001489752107776103}
   - component: {fileID: 5801283357736109814}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Mercenary
   m_TagString: Allie
   m_Icon: {fileID: 0}
@@ -306,6 +306,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _knockBackForce: 3
   _knockBackMovingTimerMax: 0.3
+  _isKnockBack: 0
 --- !u!1 &7112452971431599678
 GameObject:
   m_ObjectHideFlags: 0

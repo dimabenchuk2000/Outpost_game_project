@@ -1,265 +1,187 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(EnemyEntity))]
-
 public class EnemyGoToPortalAI : MonoBehaviour
 {
-    // Поле переменных
-    [SerializeField] private List<AlliesEntity> _allies;
-    [SerializeField] private State _startingState;
+    // Настройки через инспектор
+    [Header("Main parameters")]
+    [SerializeField] private float attackDistance = 2f;      // Расстояние для атаки
+    [SerializeField] private float weaponDrawDistance = 3f;  // Расстояние для извлечения оружия
+    [SerializeField] private float detectionRadius = 5f;     // Радиус обнаружения
 
-    [SerializeField] private float _isFightModeDistance = 7f;
-    [SerializeField] private float _isChasingDistance = 5f;
-    [SerializeField] private float _isAttackingDistane = 2f;
-
-    private NavMeshAgent _navMeshAgent;
-    private EnemyEntity _enemyEntity;
-
-    private State _currentState;
-    private GameObject _activeWeapon;
-    private Transform _targetEnemy;
-    private AlliesEntity _closestAllie;
-
-    private bool _isEnemyFightMode = false;
-
-    private float _nextAttackTime;
-
-    public bool isEnemyRunning
+    [HideInInspector]
+    public bool isEnemyRunning // Опредедляем движется ли противник для анимации
     {
         get
         {
-            if (_navMeshAgent.velocity == Vector3.zero)
+            if (navAgent.velocity == Vector3.zero)
                 return false;
             else
                 return true;
         }
     }
-    // ----------------------------------
 
-    // Список сотояний врага
-    private enum State
+    private NavMeshAgent navAgent;
+    private GameObject _activeWeapon;
+    private DirectionalRotator _rotator;
+    private Transform currentTarget;
+    private EnemyState currentState;
+
+    private bool isWeaponDrawn = false;
+    private float _nextAttackTime;
+
+    // Возможные состояния
+    private enum EnemyState
     {
-        Idle,
-        ChasingToPlayer,
-        ChasingToAllie,
-        WalkToPortal,
-        FightMode,
-        Attacking
-    } // ----------------------------------
+        MovingToPortal,
+        ChasingPlayer,
+        ChasingAllie
+    }
 
     private void Awake()
     {
-        _navMeshAgent = GetComponent<NavMeshAgent>();
-        _enemyEntity = GetComponent<EnemyEntity>();
-        _navMeshAgent.updateRotation = false;
-        _navMeshAgent.updateUpAxis = false;
+        _rotator = new DirectionalRotator(null, transform);
+        navAgent = GetComponent<NavMeshAgent>();
+        navAgent.updateRotation = false;
+        navAgent.updateUpAxis = false;
     }
 
     private void Start()
     {
-        _currentState = _startingState;
+        currentTarget = PortalPlayer.Instance.transform;
+        currentState = EnemyState.MovingToPortal;
         _activeWeapon = transform.GetChild(1).gameObject;
-        _targetEnemy = PortalPlayer.Instance.transform;
     }
 
     private void Update()
     {
-        if (_enemyEntity.IsEnemyDead() == false)
+        UpdateState();
+        CheckTargets();
+        RotationEnemy();
+
+        if (!isWeaponDrawn)
+            HandleWeapon();
+    }
+
+    private void CheckTargets()
+    {
+        // Проверяем объекты в радиусе обнаружения
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(
+        transform.position,
+        detectionRadius,
+        LayerMask.GetMask("Player", "Allies"));
+
+        foreach (Collider2D hit in hitColliders)
         {
-            if (FindClosestAllies())
+            if (hit.CompareTag("Player"))
             {
-                _targetEnemy = _closestAllie.transform;
-                CheckCurrentState();
-                StateHandler();
+                currentTarget = hit.transform;
+                currentState = EnemyState.ChasingPlayer;
+                return;
             }
-            else
+            else if (hit.CompareTag("Allie"))
             {
-                CheckCurrentState();
-                StateHandler();
-            }
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.transform.TryGetComponent(out AlliesEntity Allie))
-        {
-            _allies.Add(Allie);
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.transform.TryGetComponent(out AlliesEntity Allie))
-        {
-            _allies.Remove(Allie);
-        }
-    }
-
-    // Поле приватных методов
-    private AlliesEntity FindClosestAllies()
-    {
-        float distance = Mathf.Infinity;
-        Vector3 position = transform.position;
-        foreach (AlliesEntity allie in _allies)
-        {
-            if (allie != null)
-            {
-                Vector3 diff = allie.transform.position - position;
-                float curDistance = diff.sqrMagnitude;
-                if (distance > curDistance)
-                {
-                    _closestAllie = allie;
-                    distance = curDistance;
-                }
+                currentTarget = hit.transform;
+                currentState = EnemyState.ChasingAllie;
+                return;
             }
         }
-        return _closestAllie;
+
+        // Если никого не нашли, возвращаемся к порталу
+        currentTarget = PortalPlayer.Instance.transform;
+        currentState = EnemyState.MovingToPortal;
     }
 
-    private void StateHandler()
+    private void UpdateState()
     {
-        switch (_currentState)
+        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+
+        switch (currentState)
         {
-            case State.Idle:
-                AgentStop();
+            case EnemyState.MovingToPortal:
+                StartMovement();
+                navAgent.SetDestination(currentTarget.position);
                 break;
-            case State.ChasingToPlayer:
-                ChasingToPlayerTarget();
-                CheckCurrentState();
+
+            case EnemyState.ChasingPlayer:
+                StartMovement();
+                navAgent.SetDestination(currentTarget.position);
                 break;
-            case State.ChasingToAllie:
-                ChasingToAllieTarget();
-                CheckCurrentState();
+
+            case EnemyState.ChasingAllie:
+                StartMovement();
+                navAgent.SetDestination(currentTarget.position);
                 break;
-            case State.WalkToPortal:
-                WalkToPortal();
-                CheckCurrentState();
-                break;
-            case State.FightMode:
-                FightModeOn();
-                CheckCurrentState();
-                break;
-            case State.Attacking:
-                AttackingTarget();
-                CheckCurrentState();
-                break;
+        }
+
+        // Проверяем расстояние до цели и при необходимости атакуем
+        if (distanceToTarget <= attackDistance)
+        {
+            StopMovement();
+            Attacking();
         }
     }
 
-    private void CheckCurrentState()
+    private void HandleWeapon()
     {
-        if (_targetEnemy == null)
+        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+
+        if (distanceToTarget <= weaponDrawDistance)
         {
-            _targetEnemy = PortalPlayer.Instance.transform;
+            DrawWeapon();
+            isWeaponDrawn = true;
         }
 
-        float distanceToPlayer = Vector3.Distance(Player.Instance.transform.position, transform.position);
-        float distanceToTraget = Vector3.Distance(_targetEnemy.position, transform.position);
-        State newState = State.WalkToPortal;
+    }
 
-        if (Player.Instance.isPlayerDead)
+    private void StopMovement()
+    {
+        navAgent.isStopped = true;
+    }
+
+    private void StartMovement()
+    {
+        navAgent.isStopped = false;
+    }
+
+    private void DrawWeapon()
+    {
+        IWeapon weapon = _activeWeapon.GetComponent<IWeapon>();
+        weapon.FightMode();
+    }
+
+    private void Attacking()
+    {
+        IWeapon weapon = _activeWeapon.GetComponent<IWeapon>();
+        if (transform.position.y > currentTarget.position.y)
         {
-            newState = State.Idle;
-        }
-
-        if (!_isEnemyFightMode && distanceToTraget <= _isFightModeDistance)
-            newState = State.FightMode;
-
-        if (!_isEnemyFightMode && distanceToPlayer <= _isFightModeDistance)
-            newState = State.FightMode;
-
-        if (_isEnemyFightMode && !Player.Instance.isPlayerDead)
-        {
-            if (_targetEnemy.tag == "Allie" && distanceToTraget <= _isChasingDistance)
-                newState = State.ChasingToAllie;
-            if (distanceToTraget <= _isAttackingDistane)
-                newState = State.Attacking;
-            if (distanceToPlayer <= _isChasingDistance && _targetEnemy.tag != "Allie")
-                newState = State.ChasingToPlayer;
-            if (distanceToPlayer <= _isAttackingDistane && _targetEnemy.tag != "Allie")
-                newState = State.Attacking;
-        }
-
-        _currentState = newState;
-    }
-
-    private void AgentStop()
-    {
-        _navMeshAgent.speed = 0f;
-    }
-
-    private void ChasingToPlayerTarget()
-    {
-        _navMeshAgent.SetDestination(Player.Instance.transform.position);
-        _targetEnemy = Player.Instance.transform;
-        RotationEnemy(_targetEnemy);
-    }
-
-    private void ChasingToAllieTarget()
-    {
-        _navMeshAgent.SetDestination(_targetEnemy.position);
-        RotationEnemy(_targetEnemy);
-    }
-
-    private void WalkToPortal()
-    {
-        _navMeshAgent.SetDestination(PortalPlayer.Instance.transform.position);
-        _targetEnemy = PortalPlayer.Instance.transform;
-        RotationEnemy(_targetEnemy);
-    }
-
-    private void FightModeOn()
-    {
-        _isEnemyFightMode = true;
-        if (_activeWeapon.tag == "Sword")
-        {
-            Sword sword = _activeWeapon.GetComponent<Sword>();
-            sword.FightMode();
-        }
-    }
-
-    private void AttackingTarget()
-    {
-        if (_targetEnemy != null)
-        {
-            RotationEnemy(_targetEnemy);
-            if (_activeWeapon.tag == "Sword")
+            if (Time.time > _nextAttackTime)
             {
-                Sword sword = _activeWeapon.GetComponent<Sword>();
-                if (transform.position.y > _targetEnemy.position.y)
-                {
-                    if (Time.time > _nextAttackTime)
-                    {
-                        sword.Attack(AttackType.Additional);
-                        _nextAttackTime = Time.time + sword.GetAttackRate();
-                    }
-                }
-                else
-                {
-                    if (Time.time > _nextAttackTime)
-                    {
-                        sword.Attack(AttackType.Normal);
-                        _nextAttackTime = Time.time + sword.GetAttackRate();
-                    }
-                }
+                weapon.Attack(AttackType.Additional);
+                _nextAttackTime = Time.time + weapon.GetAttackRate();
             }
         }
-    }
-
-    private void RotationEnemy(Transform targetEnemy)
-    {
-        Vector3 targetEnemyPos = targetEnemy.position;
-        Vector3 enemyPos = transform.position;
-
-        if (targetEnemyPos.x < enemyPos.x)
-            transform.rotation = Quaternion.Euler(0, 180, 0);
         else
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+        {
+            if (Time.time > _nextAttackTime)
+            {
+                weapon.Attack(AttackType.Normal);
+                _nextAttackTime = Time.time + weapon.GetAttackRate();
+            }
+        }
     }
-    // ----------------------------------
+
+    private void RotationEnemy()
+    {
+        _rotator.SetCharacterPos(transform.position);
+        _rotator.SetTargetPos(currentTarget.position);
+        _rotator.Update(false);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Визуализация радиуса обнаружения в редакторе
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+    }
 }

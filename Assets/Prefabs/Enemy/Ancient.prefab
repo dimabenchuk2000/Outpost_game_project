@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6457913611488231517}
   - component: {fileID: 716037554970024681}
   - component: {fileID: 3783332001491010530}
-  - component: {fileID: 2247973237824779055}
   - component: {fileID: 7863170087390820859}
   - component: {fileID: 916512873648034971}
   - component: {fileID: 3856364624481030709}
@@ -113,42 +112,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.617787, y: 0.9173584}
   m_EdgeRadius: 0
---- !u!58 &2247973237824779055
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2050035925978303925}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 128
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 7
 --- !u!195 &7863170087390820859
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -198,6 +161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _knockBackForce: 3
   _knockBackMovingTimerMax: 0.3
+  _isKnockBack: 0
 --- !u!114 &4781378136130665870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,11 +174,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 675decce56c437443ac4b55f7fa2f142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _allies: []
-  _startingState: 2
-  _isFightModeDistance: 7
-  _isChasingDistance: 5
-  _isAttackingDistane: 2
+  attackDistance: 2
+  weaponDrawDistance: 5
+  detectionRadius: 5
 --- !u!1 &5497490714914159103
 GameObject:
   m_ObjectHideFlags: 0
