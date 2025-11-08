@@ -183,7 +183,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: SceneView
+  m_Name: GameView
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -194,13 +194,13 @@ MonoBehaviour:
     height: 655
   m_MinSize: {x: 201, y: 226}
   m_MaxSize: {x: 4001, y: 4026}
-  m_ActualView: {fileID: 13}
+  m_ActualView: {fileID: 12}
   m_Panes:
   - {fileID: 13}
   - {fileID: 12}
   - {fileID: 14}
-  m_Selected: 0
-  m_LastSelected: 1
+  m_Selected: 1
+  m_LastSelected: 0
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -303,7 +303,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 79
+    y: 24
     width: 1121
     height: 629
   m_SerializedDataModeController:
@@ -352,7 +352,7 @@ MonoBehaviour:
     m_HSlider: 0
     m_VSlider: 0
     m_IgnoreScrollWheelUntilClicked: 0
-    m_EnableMouseInput: 0
+    m_EnableMouseInput: 1
     m_EnableSliderZoomHorizontal: 0
     m_EnableSliderZoomVertical: 0
     m_UniformScale: 1
@@ -406,7 +406,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 24
+    y: 79
     width: 1121
     height: 629
   m_SerializedDataModeController:
@@ -977,9 +977,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: -3.5397875, y: -1.6171422, z: -20.996292}
+    m_Target: {x: -21.8956, y: -9.503604, z: -21.289972}
     speed: 2
-    m_Value: {x: -3.5397875, y: -1.6171422, z: -20.996292}
+    m_Value: {x: -21.8956, y: -9.503604, z: -21.289972}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1029,9 +1029,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 9.562822
+    m_Target: 38.931004
     speed: 2
-    m_Value: 9.562822
+    m_Value: 38.931004
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -1297,7 +1297,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 0cfbffff
+      m_ExpandedIDs: 0cfbffff1abb0000e6bd0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1369,7 +1369,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts/ScriptsMainScenes/Enemy
+    - Assets/Scripts/ScriptsMainScenes/Allies
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1379,15 +1379,15 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scripts/ScriptsMainScenes/Enemy
+  - Assets/Scripts/ScriptsMainScenes/Allies
   m_LastFoldersGridSize: -1
   m_LastProjectPath: F:\Dima\Game development\Outpost
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 1247}
-    m_SelectedIDs: 04c80000
-    m_LastClickedID: 51204
+    scrollPos: {x: 0, y: 1046}
+    m_SelectedIDs: 0ec80000
+    m_LastClickedID: 51214
     m_ExpandedIDs: 00000000eac70000ecc70000eec70000f0c70000f2c70000f4c70000f6c70000f8c70000fac70000fcc70000fec7000000c8000002c8000004c8000006c8000008c800000ac800000cc800000ec8000010c8000012c8000014c8000016c8000018c800001ac800001cc800001ec8000020c8000022c8000024c8000026c8000028c800002ac800002cc800002ec8000030c8000032c8000034c8000036c8000038c800003ac80000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -1443,8 +1443,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 20cb0000
-    m_LastClickedInstanceID: 52000
+    m_SelectedInstanceIDs: 
+    m_LastClickedInstanceID: 0
     m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000e6bf020046870500f2b50000e0b500009cb6000056b70000c8b80000e2b40000a0b000006eb70000f6b10000a8b10000ccb1000018bc0000d8b90000b6c6000002be0000a4b80000e2e200001ee3000006b900008abf00002eba00003cdc00001cd500005cd00000acb90000a2b90000a4b9000020bc0000c0d10000e0d10000a00601008ae000005ec6000062c600005ac6000050c60000cec7000048b60000fab9000042c000005cc000008cc7000018f10000eabf000062fe0000b0ba0000c6c60000441a010014c40100b2e80000c6e8000062c00000a8c000002ad200001ed20000165501001a5501002ebd00001e550100aac00000acc000001ac40000561a0100aace0000dec50000eac10000ecc100009c33020088020000bab6000000000000
     m_RenameOverlay:
