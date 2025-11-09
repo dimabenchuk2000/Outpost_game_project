@@ -175,8 +175,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackDistance: 2
-  weaponDrawDistance: 5
-  detectionRadius: 5
+  weaponDrawDistance: 7
+  detectionRadius: 7
 --- !u!1 &5497490714914159103
 GameObject:
   m_ObjectHideFlags: 0

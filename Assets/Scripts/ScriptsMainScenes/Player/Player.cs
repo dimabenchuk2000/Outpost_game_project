@@ -148,8 +148,11 @@ public class Player : MonoBehaviour
     // Поле приватных методов
     private void PlayerMove()
     {
-        _mover.SetInputDirection(GameInput.Instance.GetVectorDirectionMovement());
-        _mover.Update(Time.fixedDeltaTime, moveSpeed);
+        if (!isPlayerDead)
+        {
+            _mover.SetInputDirection(GameInput.Instance.GetVectorDirectionMovement());
+            _mover.Update(Time.fixedDeltaTime, moveSpeed);
+        }
 
         if (GameInput.Instance.GetVectorDirectionMovement().magnitude > 0)
             isPlayerRunning = true;

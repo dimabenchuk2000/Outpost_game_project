@@ -5,34 +5,35 @@ public class EnemyGoToPortalAI : MonoBehaviour
 {
     // Настройки через инспектор
     [Header("Main parameters")]
-    [SerializeField] private float attackDistance = 2f;      // Расстояние для атаки
-    [SerializeField] private float weaponDrawDistance = 3f;  // Расстояние для извлечения оружия
-    [SerializeField] private float detectionRadius = 5f;     // Радиус обнаружения
+    [SerializeField] private float _attackDistance = 2f;      // Расстояние для атаки
+    [SerializeField] private float _weaponDrawDistance = 3f;  // Расстояние для извлечения оружия
+    [SerializeField] private float _detectionRadius = 5f;     // Радиус обнаружения
 
     [HideInInspector]
     public bool isEnemyRunning // Опредедляем движется ли противник для анимации
     {
         get
         {
-            if (navAgent.velocity == Vector3.zero)
+            if (_navAgent.velocity == Vector3.zero)
                 return false;
             else
                 return true;
         }
     }
 
-    private NavMeshAgent navAgent;
+    private NavMeshAgent _navAgent;
     private GameObject _activeWeapon;
     private DirectionalRotator _rotator;
-    private Transform currentTarget;
-    private EnemyState currentState;
+    private Transform _currentTarget;
+    private EnemyState _currentState;
 
-    private bool isWeaponDrawn = false;
+    private bool _isWeaponDrawn = false;
     private float _nextAttackTime;
 
     // Возможные состояния
     private enum EnemyState
     {
+        Stopped,
         MovingToPortal,
         ChasingPlayer,
         ChasingAllie
@@ -41,25 +42,25 @@ public class EnemyGoToPortalAI : MonoBehaviour
     private void Awake()
     {
         _rotator = new DirectionalRotator(null, transform);
-        navAgent = GetComponent<NavMeshAgent>();
-        navAgent.updateRotation = false;
-        navAgent.updateUpAxis = false;
+        _navAgent = GetComponent<NavMeshAgent>();
+        _navAgent.updateRotation = false;
+        _navAgent.updateUpAxis = false;
     }
 
     private void Start()
     {
-        currentTarget = PortalPlayer.Instance.transform;
-        currentState = EnemyState.MovingToPortal;
+        _currentTarget = PortalPlayer.Instance.transform;
+        _currentState = EnemyState.MovingToPortal;
         _activeWeapon = transform.GetChild(1).gameObject;
     }
 
     private void Update()
     {
-        UpdateState();
         CheckTargets();
+        UpdateState();
         RotationEnemy();
 
-        if (!isWeaponDrawn)
+        if (!_isWeaponDrawn)
             HandleWeapon();
     }
 
@@ -68,54 +69,65 @@ public class EnemyGoToPortalAI : MonoBehaviour
         // Проверяем объекты в радиусе обнаружения
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(
         transform.position,
-        detectionRadius,
+        _detectionRadius,
         LayerMask.GetMask("Player", "Allies"));
 
         foreach (Collider2D hit in hitColliders)
         {
-            if (hit.CompareTag("Player"))
+            if (hit.CompareTag("Player") && !Player.Instance.isPlayerDead)
             {
-                currentTarget = hit.transform;
-                currentState = EnemyState.ChasingPlayer;
+                _currentTarget = hit.transform;
+                _currentState = EnemyState.ChasingPlayer;
                 return;
             }
             else if (hit.CompareTag("Allie"))
             {
-                currentTarget = hit.transform;
-                currentState = EnemyState.ChasingAllie;
+                _currentTarget = hit.transform;
+                _currentState = EnemyState.ChasingAllie;
                 return;
             }
         }
 
+        // Если игрок погиб, все противники бездействуют
+        if (Player.Instance.isPlayerDead)
+        {
+            _currentState = EnemyState.Stopped;
+            return;
+        }
+
         // Если никого не нашли, возвращаемся к порталу
-        currentTarget = PortalPlayer.Instance.transform;
-        currentState = EnemyState.MovingToPortal;
+        _currentTarget = PortalPlayer.Instance.transform;
+        _currentState = EnemyState.MovingToPortal;
     }
 
     private void UpdateState()
     {
-        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+        float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.position);
 
-        switch (currentState)
+        switch (_currentState)
         {
+            case EnemyState.Stopped:
+                StopMovement();
+                break;
+
             case EnemyState.MovingToPortal:
                 StartMovement();
-                navAgent.SetDestination(currentTarget.position);
+                _navAgent.SetDestination(_currentTarget.position);
                 break;
 
             case EnemyState.ChasingPlayer:
                 StartMovement();
-                navAgent.SetDestination(currentTarget.position);
+                _navAgent.SetDestination(_currentTarget.position);
                 break;
 
             case EnemyState.ChasingAllie:
                 StartMovement();
-                navAgent.SetDestination(currentTarget.position);
+                _navAgent.SetDestination(_currentTarget.position);
                 break;
         }
 
         // Проверяем расстояние до цели и при необходимости атакуем
-        if (distanceToTarget <= attackDistance)
+        if (distanceToTarget <= _attackDistance && !Player.Instance.isPlayerDead)
         {
             StopMovement();
             Attacking();
@@ -124,25 +136,19 @@ public class EnemyGoToPortalAI : MonoBehaviour
 
     private void HandleWeapon()
     {
-        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+        float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.position);
 
-        if (distanceToTarget <= weaponDrawDistance)
+        if (distanceToTarget <= _weaponDrawDistance)
         {
             DrawWeapon();
-            isWeaponDrawn = true;
+            _isWeaponDrawn = true;
         }
 
     }
 
-    private void StopMovement()
-    {
-        navAgent.isStopped = true;
-    }
+    private void StopMovement() => _navAgent.isStopped = true;
 
-    private void StartMovement()
-    {
-        navAgent.isStopped = false;
-    }
+    private void StartMovement() => _navAgent.isStopped = false;
 
     private void DrawWeapon()
     {
@@ -153,7 +159,7 @@ public class EnemyGoToPortalAI : MonoBehaviour
     private void Attacking()
     {
         IWeapon weapon = _activeWeapon.GetComponent<IWeapon>();
-        if (transform.position.y > currentTarget.position.y)
+        if (transform.position.y > _currentTarget.position.y)
         {
             if (Time.time > _nextAttackTime)
             {
@@ -174,7 +180,7 @@ public class EnemyGoToPortalAI : MonoBehaviour
     private void RotationEnemy()
     {
         _rotator.SetCharacterPos(transform.position);
-        _rotator.SetTargetPos(currentTarget.position);
+        _rotator.SetTargetPos(_currentTarget.position);
         _rotator.Update(false);
     }
 
@@ -182,6 +188,6 @@ public class EnemyGoToPortalAI : MonoBehaviour
     {
         // Визуализация радиуса обнаружения в редакторе
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        Gizmos.DrawWireSphere(transform.position, _detectionRadius);
     }
 }
