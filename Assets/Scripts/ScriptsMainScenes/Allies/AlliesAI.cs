@@ -1,244 +1,182 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(AlliesEntity))]
-
 public class AlliesAI : MonoBehaviour
 {
-    // Поле переменных
-    [SerializeField] private List<EnemyEntity> _enemys;
-    [SerializeField] private State _startingState;
+    // Настройки через инспектор
+    [Header("Main parameters")]
+    [SerializeField] private float _attackDistance = 2f;      // Расстояние для атаки
+    [SerializeField] private float _weaponDrawDistance = 3f;  // Расстояние для извлечения оружия
+    [SerializeField] private float _detectionRadius = 5f;     // Радиус обнаружения
 
-    [SerializeField] private float _isFightModeDistance = 5f;
-    [SerializeField] private float _isChasingDistance = 5f;
-    [SerializeField] private float _isAttackingDistane = 2f;
-
-    private DirectionalRotator _rotator;
-
-    private NavMeshAgent _navMeshAgent;
-    private AlliesEntity _alliesEntity;
-
-    private State _currentState;
-    private bool _isAlliesFightMode = false;
-    private GameObject _activeWeapon;
-    private Transform _targetAllies;
-    private float _distanceToEnemy;
-    private EnemyEntity _closestEnemy;
-    private bool _isClosestEnemyDead;
-    private float _nextAttackTime;
-    private Vector2 _startPosition;
-
-    public bool isEnemyRunning
+    [HideInInspector]
+    public bool isAlliesRunning // Опредедляем движется ли союзник для анимации
     {
         get
         {
-            if (_navMeshAgent.velocity == Vector3.zero)
+            if (_navAgent.velocity == Vector3.zero)
                 return false;
             else
                 return true;
         }
     }
-    // ----------------------------------
 
-    // Список сотояний союзника
-    private enum State
+    private NavMeshAgent _navAgent;
+    private GameObject _activeWeapon;
+    private DirectionalRotator _rotator;
+    private Transform _currentTarget;
+    private EnemyState _currentState;
+
+    private bool _isWeaponDrawn = false;
+    private float _nextAttackTime;
+    private Vector2 _startPosition;
+
+    // Возможные состояния
+    private enum EnemyState
     {
-        Idle,
-        Roaming,
-        Chasing,
-        FightMode,
-        Attacking,
-        Death
-    } // ----------------------------------
+        Stopped,
+        GoToStartPos,
+        ChasingEnemy
+    }
 
     private void Awake()
     {
-        _navMeshAgent = GetComponent<NavMeshAgent>();
-        _alliesEntity = GetComponent<AlliesEntity>();
-        _navMeshAgent.updateRotation = false;
-        _navMeshAgent.updateUpAxis = false;
-
-        _startPosition = transform.position;
         _rotator = new DirectionalRotator(null, transform);
+        _navAgent = GetComponent<NavMeshAgent>();
+        _navAgent.updateRotation = false;
+        _navAgent.updateUpAxis = false;
     }
 
     private void Start()
     {
-        _currentState = _startingState;
+        _currentState = EnemyState.GoToStartPos;
         _activeWeapon = transform.GetChild(1).gameObject;
+        _startPosition = transform.position;
     }
 
     private void Update()
     {
-        if (_alliesEntity.IsAlliesDead() == false)
-        {
-            if (FindClosestEnemy())
-            {
-                CheckCurrentState();
-                _targetAllies = _closestEnemy.transform;
-                StateHandler();
-            }
-            else
-            {
-                _targetAllies = null;
-                CheckCurrentState();
-                StateHandler();
-            }
-        }
+        CheckTargets();
+        UpdateState();
+        RotationAllie();
 
+        if (!_isWeaponDrawn)
+            HandleWeapon();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void CheckTargets()
     {
-        if (collision.transform.TryGetComponent(out EnemyEntity Enemy))
-        {
-            _enemys.Add(Enemy);
-        }
-    }
+        // Проверяем объекты в радиусе обнаружения
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(
+        transform.position,
+        _detectionRadius,
+        LayerMask.GetMask("Enemy"));
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.transform.TryGetComponent(out EnemyEntity Enemy))
+        foreach (Collider2D hit in hitColliders)
         {
-            _enemys.Remove(Enemy);
-        }
-    }
-
-    // Поле приватных методов
-    private EnemyEntity FindClosestEnemy()
-    {
-        float distance = Mathf.Infinity;
-        Vector3 position = transform.position;
-        foreach (EnemyEntity enemy in _enemys)
-        {
-            if (enemy != null)
+            if (hit.CompareTag("Enemy") && !Player.Instance.isPlayerDead)
             {
-                Vector3 diff = enemy.transform.position - position;
-                float curDistance = diff.sqrMagnitude;
-                if (distance > curDistance)
-                {
-                    _closestEnemy = enemy;
-                    distance = curDistance;
-                }
+                _currentTarget = hit.transform;
+                _currentState = EnemyState.ChasingEnemy;
+                return;
             }
         }
-        return _closestEnemy;
+
+        // Если игрок погиб, все союзники бездействуют
+        if (Player.Instance.isPlayerDead)
+        {
+            _currentState = EnemyState.Stopped;
+            return;
+        }
+
+        // Если никого не нашли, возвращаемся к стартовой позиции
+        _currentTarget = PortalPlayer.Instance.transform;
+        _currentState = EnemyState.GoToStartPos;
     }
 
-    private void StateHandler()
+    private void UpdateState()
     {
+        float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.position);
+
         switch (_currentState)
         {
-            case State.Idle:
-                IdleTarget();
-                CheckCurrentState();
+            case EnemyState.Stopped:
+                StopMovement();
                 break;
-            case State.Chasing:
-                ChasingTarget();
-                CheckCurrentState();
+
+            case EnemyState.GoToStartPos:
+                StartMovement();
+                _navAgent.SetDestination(_startPosition);
                 break;
-            case State.FightMode:
-                FightModeOn();
-                CheckCurrentState();
+
+            case EnemyState.ChasingEnemy:
+                StartMovement();
+                _navAgent.SetDestination(_currentTarget.position);
                 break;
-            case State.Attacking:
-                RotationEnemy(_targetAllies);
-                AttackingTarget();
-                CheckCurrentState();
-                break;
+        }
+
+        // Проверяем расстояние до цели и при необходимости атакуем
+        if (distanceToTarget <= _attackDistance && !Player.Instance.isPlayerDead)
+        {
+            StopMovement();
+            Attacking();
         }
     }
 
-    private void CheckCurrentState()
+    private void HandleWeapon()
     {
-        if (FindClosestEnemy())
+        float distanceToTarget = Vector3.Distance(transform.position, _currentTarget.position);
+
+        if (distanceToTarget <= _weaponDrawDistance)
         {
-            _distanceToEnemy = Vector3.Distance(transform.position, _closestEnemy.transform.position);
-            _isClosestEnemyDead = _closestEnemy.IsEnemyDead();
+            DrawWeapon();
+            _isWeaponDrawn = true;
         }
 
-        State newState = State.Idle;
-
-        if (FindClosestEnemy() == null)
-            newState = State.Idle;
-
-        if (_isAlliesFightMode == false && FindClosestEnemy())
-            if (_distanceToEnemy <= _isFightModeDistance)
-                newState = State.FightMode;
-
-        if (_isAlliesFightMode && FindClosestEnemy() && _isClosestEnemyDead == false)
-            if (_distanceToEnemy <= _isChasingDistance)
-                newState = State.Chasing;
-
-        if (_isAlliesFightMode && FindClosestEnemy() && _isClosestEnemyDead == false)
-            if (_distanceToEnemy <= _isAttackingDistane)
-                newState = State.Attacking;
-
-        if (newState != _currentState)
-            if (newState == State.Attacking)
-                _navMeshAgent.ResetPath();
-
-        _currentState = newState;
     }
 
-    private void IdleTarget()
+    private void StopMovement() => _navAgent.isStopped = true;
+
+    private void StartMovement() => _navAgent.isStopped = false;
+
+    private void DrawWeapon()
     {
-        _navMeshAgent.SetDestination(_startPosition);
+        IWeapon weapon = _activeWeapon.GetComponent<IWeapon>();
+        weapon.FightMode();
     }
 
-    private void ChasingTarget()
+    private void Attacking()
     {
-        if (_targetAllies != null)
+        IWeapon weapon = _activeWeapon.GetComponent<IWeapon>();
+        if (transform.position.y > _currentTarget.position.y)
         {
-            _navMeshAgent.SetDestination(_targetAllies.position);
-            RotationEnemy(_targetAllies);
-        }
-    }
-
-    private void FightModeOn()
-    {
-        _isAlliesFightMode = true;
-        if (_activeWeapon.tag == "Sword")
-        {
-            Sword sword = _activeWeapon.GetComponent<Sword>();
-            sword.FightMode();
-        }
-    }
-
-    private void AttackingTarget()
-    {
-        if (_targetAllies != null)
-        {
-            if (_activeWeapon.tag == "Sword")
+            if (Time.time > _nextAttackTime)
             {
-                Sword sword = _activeWeapon.GetComponent<Sword>();
-                if (transform.position.y > _targetAllies.position.y)
-                {
-                    if (Time.time > _nextAttackTime)
-                    {
-                        sword.Attack(AttackType.Additional);
-                        _nextAttackTime = Time.time + sword.GetAttackRate();
-                    }
-                }
-                else
-                {
-                    if (Time.time > _nextAttackTime)
-                    {
-                        sword.Attack(AttackType.Normal);
-                        _nextAttackTime = Time.time + sword.GetAttackRate();
-                    }
-                }
+                weapon.Attack(AttackType.Additional);
+                _nextAttackTime = Time.time + weapon.GetAttackRate();
+            }
+        }
+        else
+        {
+            if (Time.time > _nextAttackTime)
+            {
+                weapon.Attack(AttackType.Normal);
+                _nextAttackTime = Time.time + weapon.GetAttackRate();
             }
         }
     }
 
-    private void RotationEnemy(Transform targetAllies)
+    private void RotationAllie()
     {
         _rotator.SetCharacterPos(transform.position);
-        _rotator.SetTargetPos(targetAllies.position);
+        _rotator.SetTargetPos(_currentTarget.position);
         _rotator.Update(false);
     }
-    // ----------------------------------
+
+    private void OnDrawGizmosSelected()
+    {
+        // Визуализация радиуса обнаружения в редакторе
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _detectionRadius);
+    }
 }

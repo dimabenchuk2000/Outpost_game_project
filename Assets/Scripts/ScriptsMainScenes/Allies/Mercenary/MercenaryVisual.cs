@@ -20,6 +20,6 @@ public class MercenaryVisual : MonoBehaviour
 
     private void Update()
     {
-        _animator.SetBool(IS_RUNNING, _alliesAI.isEnemyRunning);
+        _animator.SetBool(IS_RUNNING, _alliesAI.isAlliesRunning);
     }
 }

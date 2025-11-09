@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 916512873648034971}
   - component: {fileID: 3856364624481030709}
   - component: {fileID: 4781378136130665870}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Ancient
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -174,9 +174,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 675decce56c437443ac4b55f7fa2f142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackDistance: 2
-  weaponDrawDistance: 7
-  detectionRadius: 7
+  _attackDistance: 2
+  _weaponDrawDistance: 7
+  _detectionRadius: 7
 --- !u!1 &5497490714914159103
 GameObject:
   m_ObjectHideFlags: 0
