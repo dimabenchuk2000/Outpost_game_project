@@ -22463,7 +22463,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 85}
+  m_AnchoredPosition: {x: 0, y: 69}
   m_SizeDelta: {x: 160, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &516873358
@@ -31808,6 +31808,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34ed881b2c263794292ed366d9e3d46b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 32
 --- !u!114 &1110836745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31845,6 +31848,7 @@ MonoBehaviour:
   factCountStone: {fileID: 576878319}
   factCountCoin: {fileID: 1845763381}
   currentLevel: 0
+  _textImprovements: {fileID: 2055832731}
 --- !u!114 &1110836747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33615,7 +33619,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 113, y: 0}
+  m_AnchoredPosition: {x: 113, y: -23}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1172428788
@@ -34836,8 +34840,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 180.603, y: -109.905}
-  m_SizeDelta: {x: 270, y: 70}
+  m_AnchoredPosition: {x: 180.603, y: -92.55005}
+  m_SizeDelta: {x: 270, y: 35.29}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1239777698
 MonoBehaviour:
@@ -78517,6 +78521,7 @@ RectTransform:
   - {fileID: 1449634479}
   - {fileID: 1150431351}
   - {fileID: 1239777697}
+  - {fileID: 2055832730}
   - {fileID: 1172428787}
   - {fileID: 516873357}
   m_Father: {fileID: 329251854}
@@ -79044,6 +79049,87 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2054641883}
+  m_CullTransparentMesh: 1
+--- !u!1 &2055832729
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2055832730}
+  - component: {fileID: 2055832732}
+  - component: {fileID: 2055832731}
+  m_Layer: 5
+  m_Name: Text (improvement)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2055832730
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2055832729}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2007413817}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 4.9015007, y: 30.771}
+  m_SizeDelta: {x: 271.4, y: 50.658}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2055832731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2055832729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 12
+    m_FontStyle: 2
+    m_BestFit: 0
+    m_MinSize: 0
+    m_MaxSize: 40
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "\u041F\u043E\u0441\u043B\u0435 \u0443\u043B\u0443\u0447\u0448\u0435\u043D\u0438\u044F
+    \u0437\u0434\u0430\u043D\u0438\u044F \u0434\u043E 2 \u0443\u0440. \u043F\u043E\u044F\u0432\u043B\u044F\u0435\u0442\u0441\u044F
+    \u0434\u043E\u0441\u0442\u0443\u043F \u043A \u0440\u044B\u0432\u043A\u0443 (space)."
+--- !u!222 &2055832732
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2055832729}
   m_CullTransparentMesh: 1
 --- !u!1 &2061473297
 GameObject:

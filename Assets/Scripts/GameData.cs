@@ -36,9 +36,9 @@ public static class GameData
     public static Dictionary<string, bool> improvementList = new Dictionary<string, bool>
     {
         {"Dash", false},
-        {"Inventory_12_slots", true},
+        {"Inventory_12_slots", false},
         {"Run", false},
-        {"Inventory_15_slots", true},
+        {"Inventory_15_slots", false},
     };
 
     public static Dictionary<string, int> weaponLevel = new Dictionary<string, int>

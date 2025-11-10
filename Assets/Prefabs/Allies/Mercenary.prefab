@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1480772112407937269}
   - component: {fileID: 6937644591073324992}
   - component: {fileID: 4235988951480307393}
-  - component: {fileID: 4652877373802561199}
   - component: {fileID: 6674182901392901503}
   - component: {fileID: 3720122408676510087}
   - component: {fileID: 5096134997154628297}
@@ -170,42 +169,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.60756207, y: 1.0073628}
   m_EdgeRadius: 0
---- !u!58 &4652877373802561199
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 579169263948132464}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 128
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.94000006}
-  m_Radius: 9
 --- !u!195 &6674182901392901503
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -262,11 +225,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dcdc73dd24468945815c7282f2e7b87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemys: []
-  _startingState: 0
-  _isFightModeDistance: 9
-  _isChasingDistance: 8
-  _isAttackingDistane: 2
+  _attackDistance: 2
+  _weaponDrawDistance: 7
+  _detectionRadius: 7
 --- !u!114 &4246797173411206889
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MouseClickHandler : MonoBehaviour
 {
@@ -11,11 +13,16 @@ public class MouseClickHandler : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            clickPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            hit = Physics2D.Raycast(clickPosition, Vector2.zero);
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                clickPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                hit = Physics2D.Raycast(clickPosition, Vector2.zero);
+            }
 
             if (hit.collider != null)
             {
+                CloseAllPanel();
+
                 if (hit.collider.CompareTag("PortalPlayer"))
                     PanelPortal.Instance.PanelPortalOn();
                 if (hit.collider.CompareTag("TownHall"))
@@ -38,5 +45,19 @@ public class MouseClickHandler : MonoBehaviour
                     PanelBarracks_6.Instance.PanelBarracksOn();
             }
         }
+    }
+
+    private void CloseAllPanel()
+    {
+        PanelPortal.Instance.PanelPortalOff();
+        PanelTownHall.Instance.PanelTownHallOff();
+        PanelForge.Instance.PanelForgeOff();
+        PanelUnbuiltBarracks.Instance.PanelUnbuiltBarrackOff();
+        PanelBarracks.Instance.PanelBarracksOff();
+        PanelBarracks_2.Instance.PanelBarracksOff();
+        PanelBarracks_3.Instance.PanelBarracksOff();
+        PanelBarracks_4.Instance.PanelBarracksOff();
+        PanelBarracks_5.Instance.PanelBarracksOff();
+        PanelBarracks_6.Instance.PanelBarracksOff();
     }
 }

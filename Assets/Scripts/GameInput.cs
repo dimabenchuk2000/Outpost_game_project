@@ -49,9 +49,15 @@ public class GameInput : MonoBehaviour
             pickaxeSelection.action.started += PickaxeSelection;
             axeSelection.action.started += AxeSelection;
             cameraPortal.action.started += CameraPortalToggle;
-            dash.action.started += PlayerDashStarted;
-            run.action.performed += PlayerRunPerformed;
-            run.action.canceled += PlayerRunCanceled;
+
+            if (GameData.improvementList["Dash"])
+                dash.action.started += PlayerDashStarted;
+
+            if (GameData.improvementList["Run"])
+            {
+                run.action.performed += PlayerRunPerformed;
+                run.action.canceled += PlayerRunCanceled;
+            }
         }
     }
 
