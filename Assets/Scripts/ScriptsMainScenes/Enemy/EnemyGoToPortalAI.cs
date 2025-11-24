@@ -64,6 +64,8 @@ public class EnemyGoToPortalAI : MonoBehaviour
             HandleWeapon();
     }
 
+    public Transform CurrentTarget() => _currentTarget;
+
     private void CheckTargets()
     {
         // Проверяем объекты в радиусе обнаружения

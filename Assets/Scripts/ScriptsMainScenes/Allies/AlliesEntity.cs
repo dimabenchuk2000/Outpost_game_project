@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(KnockBack))]
 
-public class AlliesEntity : MonoBehaviour
+public class AlliesEntity : MonoBehaviour, IDamageable
 {
     // Поле переменных
     [SerializeField] private int _mercenatyHealth = 30;

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(KnockBack))]
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IDamageable
 {
     public static Player Instance;
 

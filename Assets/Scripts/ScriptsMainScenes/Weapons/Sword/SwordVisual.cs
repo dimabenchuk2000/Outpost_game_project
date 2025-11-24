@@ -46,7 +46,7 @@ public class SwordVisual : MonoBehaviour
                 Player.TakeDamage(_sword.SwordDamage(), _sword.transform.parent.transform);
 
             if (collision.transform.TryGetComponent(out PortalPlayer PortalPlayer))
-                PortalPlayer.PortalTakeDamage(_sword.SwordDamage());
+                PortalPlayer.TakeDamage(_sword.SwordDamage(), null);
 
             if (collision.transform.TryGetComponent(out AlliesEntity Allies))
                 Allies.TakeDamage(_sword.SwordDamage(), _sword.transform.parent.transform);

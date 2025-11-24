@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
 
-public class PortalPlayer : MonoBehaviour
+public class PortalPlayer : MonoBehaviour, IDamageable
 {
     public static PortalPlayer Instance;
 
@@ -32,7 +32,7 @@ public class PortalPlayer : MonoBehaviour
     }
 
     // Поле публичных методов
-    public void PortalTakeDamage(int damage)
+    public void TakeDamage(int damage, Transform sourceDamage)
     {
         if (isPortalDestruction == false)
         {
