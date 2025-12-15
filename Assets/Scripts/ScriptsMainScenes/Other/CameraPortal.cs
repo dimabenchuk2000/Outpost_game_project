@@ -45,6 +45,11 @@ public class CameraPortal : MonoBehaviour
         }
 
     }
+
+    public void CameraPortalOn()
+    {
+        _cameraPortal.enabled = true;
+    }
     // ----------------------------------
 
     // Поле приватных методов

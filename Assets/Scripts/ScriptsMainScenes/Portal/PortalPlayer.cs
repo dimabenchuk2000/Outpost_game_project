@@ -50,7 +50,7 @@ public class PortalPlayer : MonoBehaviour, IDamageable
         if (_currentPortalHealth <= 0)
         {
             Player.Instance.isPlayerDead = true;
-            CameraPortal.Instance.CameraPortalToggle();
+            CameraPortal.Instance.CameraPortalOn();
             GameData.globalHP -= 1;
             isPortalDestruction = true;
             _animator.SetBool(IS_DEAD, true);
@@ -64,7 +64,15 @@ public class PortalPlayer : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(2f);
         UIAfterDestroyPortal.Instance.LightenTextYouDead();
         yield return new WaitForSeconds(2f);
-        UIAfterDestroyPortal.Instance.LightenTextButNotEnd();
+
+        if (GameData.globalHP < 1)
+        {
+            UIAfterDestroyPortal.Instance.LightenTextEnd();
+            ResetProgress.ResetAll();
+        }
+        else
+            UIAfterDestroyPortal.Instance.LightenTextButNotEnd();
+
         yield return new WaitForSeconds(2f);
         GameInput.Instance.GoToBase();
     }
